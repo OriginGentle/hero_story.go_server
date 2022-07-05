@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"github.com/gorilla/websocket"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/dynamicpb"
 	"hero_story.go_server/biz_server/msg"
@@ -12,8 +11,8 @@ func init() {
 	cmdHandlerMap[uint16(msg.MsgCode_USER_LOGIN_CMD.Number())] = userLoginCmdHandler
 }
 
-func userLoginCmdHandler(conn *websocket.Conn, pbMsgObj *dynamicpb.Message) {
-	if nil == conn ||
+func userLoginCmdHandler(ctx ICmdContext, pbMsgObj *dynamicpb.Message) {
+	if nil == ctx ||
 		nil == pbMsgObj {
 		return
 	}
@@ -36,13 +35,5 @@ func userLoginCmdHandler(conn *websocket.Conn, pbMsgObj *dynamicpb.Message) {
 		HeroAvatar: "Hero_Shaman",
 	}
 
-	byteArray, err := msg.Encode(userLoginResult)
-
-	if nil != err {
-		return
-	}
-
-	if err := conn.WriteMessage(websocket.BinaryMessage, byteArray); nil != err {
-		log.Error("%+v", err)
-	}
+	ctx.Write(userLoginResult)
 }

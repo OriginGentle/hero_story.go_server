@@ -1,12 +1,9 @@
 package main
 
 import (
-	"encoding/binary"
 	"github.com/gorilla/websocket"
-	"hero_story.go_server/biz_server/handler"
-	"hero_story.go_server/biz_server/msg"
+	myWebsocket "hero_story.go_server/biz_server/network/websocket"
 	"hero_story.go_server/comm/log"
-	"hero_story.go_server/comm/main_thread"
 	"net/http"
 )
 
@@ -41,43 +38,12 @@ func webSocketHandshake(w http.ResponseWriter, r *http.Request) {
 		_ = conn.Close()
 	}()
 
-	log.Info("有新客户端联入,客户端地址,%+v", conn.LocalAddr())
+	log.Info("有新客户端连入,客户端地址,%+v", conn.LocalAddr())
 
-	for {
-		_, msgData, err := conn.ReadMessage()
-
-		if nil != err {
-			log.Error("%+v", err)
-			break
-		}
-
-		log.Info("%+v", msgData)
-
-		msgCode := binary.BigEndian.Uint16(msgData[2:4])
-		newMsgX, err := msg.Decode(msgData[4:], int16(msgCode))
-
-		if nil != err {
-			log.Error("消息解码错误,msgCode = %d ,err = %+v ",
-				msgCode, err,
-			)
-			continue
-		}
-
-		log.Info("收到客户端消息,msgCode = %d,msgName = %s",
-			msgCode, newMsgX.Descriptor().Name(),
-		)
-
-		cmdHandler := handler.CreateCmdHandler(msgCode)
-
-		if nil == cmdHandler {
-			log.Error("未找到指令处理器,msgCode = %d",
-				msgCode,
-			)
-			continue
-		}
-
-		main_thread.Process(func() {
-			cmdHandler(conn, newMsgX)
-		})
+	ctx := &myWebsocket.CmdContextImpl{
+		Conn: conn,
 	}
+
+	ctx.LoopSendMsg()
+	ctx.LoopReadMsg()
 }
