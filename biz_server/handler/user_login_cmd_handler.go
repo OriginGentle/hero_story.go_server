@@ -3,6 +3,7 @@ package handler
 import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/dynamicpb"
+	"hero_story.go_server/biz_server/mod/service/login/loginsrv"
 	"hero_story.go_server/biz_server/msg"
 	"hero_story.go_server/comm/log"
 )
@@ -29,11 +30,21 @@ func userLoginCmdHandler(ctx ICmdContext, pbMsgObj *dynamicpb.Message) {
 		userLoginCmd.GetPassword(),
 	)
 
-	userLoginResult := &msg.UserLoginResult{
-		UserId:     1,
-		UserName:   userLoginCmd.UserName,
-		HeroAvatar: "Hero_Shaman",
+	user := loginsrv.LoginByPasswordAsync(userLoginCmd.GetUserName(), userLoginCmd.GetPassword())
+
+	if nil == user {
+		log.Error("用户不存在,userName = %s",
+			userLoginCmd.GetUserName(),
+		)
+		return
 	}
 
+	userLoginResult := &msg.UserLoginResult{
+		UserId:     uint32(user.UserId),
+		UserName:   user.UserName,
+		HeroAvatar: user.HeroAvatar,
+	}
+
+	ctx.BindUserId(user.UserId)
 	ctx.Write(userLoginResult)
 }
