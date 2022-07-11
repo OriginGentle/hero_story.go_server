@@ -9,10 +9,13 @@ import _ "github.com/go-sql-driver/mysql"
 
 var MysqlDB *sql.DB
 
+const DriverName = "mysql"
+const DataSourceName = "root:Ycb@990121@tcp(139.155.0.174:3236)/hero_story"
+
 func init() {
 	var mysqlErr error
 
-	MysqlDB, mysqlErr = sql.Open("mysql", "root:Ycb@990121@tcp(139.155.0.174:3236)/hero_story")
+	MysqlDB, mysqlErr = sql.Open(DriverName, DataSourceName)
 
 	if nil != mysqlErr {
 		panic(mysqlErr)

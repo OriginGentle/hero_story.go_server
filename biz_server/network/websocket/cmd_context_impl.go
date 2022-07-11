@@ -45,7 +45,10 @@ func (ctx *CmdContextImpl) Write(msgObj protoreflect.ProtoMessage) {
 }
 
 func (ctx *CmdContextImpl) SendError(errorCode int, errorInfo string) {
-
+	if len(errorInfo) <= 0 &&
+		errorCode < 0 {
+		return
+	}
 }
 
 func (ctx *CmdContextImpl) Disconnect() {

@@ -1,8 +1,8 @@
-package userdao
+package user_dao
 
 import (
 	"hero_story.go_server/biz_server/base"
-	"hero_story.go_server/biz_server/mod/dao/user/userdata"
+	"hero_story.go_server/biz_server/mod/dao/user/user_data"
 	"hero_story.go_server/comm/log"
 )
 
@@ -14,7 +14,7 @@ insert into t_user(
 ) on duplicate key update last_login_time = ?
 `
 
-func SaveOrUpdate(user *userdata.User) {
+func SaveOrUpdate(user *user_data.User) {
 	if nil == user {
 		return
 	}

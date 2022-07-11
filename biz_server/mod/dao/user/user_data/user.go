@@ -1,4 +1,4 @@
-package userdata
+package user_data
 
 type User struct {
 	UserId        int64  `db:"user_id"`
