@@ -10,7 +10,6 @@ var writer *dailyFileWriter
 var infoLogger, errorLogger *log.Logger
 
 func Config(outputFileName string) {
-
 	if len(outputFileName) <= 0 {
 		panic("输出文件名为空")
 	}

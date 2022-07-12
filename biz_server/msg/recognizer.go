@@ -67,7 +67,6 @@ func init2Map() {
 		)
 
 		msgCode := msgNameAndMsgCodeMap[msgName]
-
 		msgCodeAndMsgDescMap[msgCode] = msgDesc
 	}
 }

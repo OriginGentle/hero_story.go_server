@@ -5,16 +5,16 @@ import (
 	"google.golang.org/protobuf/types/dynamicpb"
 	"hero_story.go_server/biz_server/base"
 	"hero_story.go_server/biz_server/mod/dao/user/user_data"
-	"hero_story.go_server/biz_server/mod/service/login/loginsrv"
+	"hero_story.go_server/biz_server/mod/service/login/login_srv"
 	"hero_story.go_server/biz_server/msg"
 	"hero_story.go_server/comm/log"
 )
 
 func init() {
-	cmdHandlerMap[uint16(msg.MsgCode_USER_LOGIN_CMD.Number())] = userLoginCmdHandler
+	cmdHandlerMap[uint16(msg.MsgCode_USER_LOGIN_CMD.Number())] = handleUserLoginCmd
 }
 
-func userLoginCmdHandler(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
+func handleUserLoginCmd(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
 	if nil == ctx ||
 		nil == pbMsgObj {
 		return
@@ -32,7 +32,7 @@ func userLoginCmdHandler(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
 		userLoginCmd.GetPassword(),
 	)
 
-	bizResult := loginsrv.LoginByPasswordAsync(userLoginCmd.GetUserName(), userLoginCmd.GetPassword())
+	bizResult := login_srv.LoginByPasswordAsync(userLoginCmd.GetUserName(), userLoginCmd.GetPassword())
 
 	if nil == bizResult {
 		log.Error("业务结果返回空值,userName = %s",
@@ -42,7 +42,6 @@ func userLoginCmdHandler(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
 	}
 
 	bizResult.OnComplete(func() {
-
 		returnedObj := bizResult.GetReturnedObj()
 
 		if nil == returnedObj {

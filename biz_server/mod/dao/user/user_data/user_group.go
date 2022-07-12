@@ -27,6 +27,7 @@ func (group *userGroup) RemoveByUserId(userId int64) {
 	if userId <= 0 {
 		return
 	}
+
 	delete(group.innerMap, userId)
 }
 
@@ -35,6 +36,7 @@ func (group *userGroup) GetByUserId(userId int64) *User {
 	if userId <= 0 {
 		return nil
 	}
+
 	return group.innerMap[userId]
 }
 

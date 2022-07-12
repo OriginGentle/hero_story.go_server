@@ -21,6 +21,7 @@ type CmdContextImpl struct {
 	clientIpAddr string
 	Conn         *websocket.Conn
 	sendMsgQ     chan protoreflect.ProtoMessage // BlockQueue
+	SessionId    int32
 }
 
 func (ctx *CmdContextImpl) BindUserId(val int64) {

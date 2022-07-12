@@ -1,4 +1,4 @@
-package loginsrv
+package login_srv
 
 import (
 	"fmt"
@@ -36,7 +36,6 @@ func LoginByPasswordAsync(userName string, password string) *base.AsyncBizResult
 
 			// 是否有登出锁
 			key := fmt.Sprintf("UserQuit_%d", user.UserId)
-
 			// 如果存在登出锁，直接退出
 			if user_lock.HasLock(key) {
 				bizResult.SetReturnedObj(nil)
@@ -49,6 +48,7 @@ func LoginByPasswordAsync(userName string, password string) *base.AsyncBizResult
 
 			// 将用户添加到字典
 			user_data.GetUserGroup().Add(user)
+
 			bizResult.SetReturnedObj(user)
 		},
 		nil,

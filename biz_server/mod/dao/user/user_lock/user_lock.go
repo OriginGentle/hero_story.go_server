@@ -12,7 +12,6 @@ func TryLock(key string) bool {
 	}
 
 	_, loaded := lockMap.LoadOrStore(key, 1)
-
 	return !loaded
 }
 
@@ -26,6 +25,5 @@ func UnLock(key string) {
 
 func HasLock(key string) bool {
 	_, loaded := lockMap.Load(key)
-
 	return loaded
 }

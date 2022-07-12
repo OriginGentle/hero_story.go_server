@@ -1,6 +1,9 @@
 package main_thread
 
-import "sync"
+import (
+	"hero_story.go_server/comm/log"
+	"sync"
+)
 
 // 主队列大小
 const mainQSize = 2048
@@ -36,8 +39,19 @@ func Process(task func()) {
 func execute() {
 	for {
 		task := <-mainQ
-		if nil != task {
-			task()
+
+		if nil == task {
+			continue
 		}
+
+		func() {
+			defer func() {
+				if err := recover(); nil != err {
+					log.Error("发生异常，%+v", err)
+				}
+			}()
+
+			task()
+		}()
 	}
 }

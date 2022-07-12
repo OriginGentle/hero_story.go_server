@@ -68,7 +68,8 @@ func (w *dailyFileWriter) getOutputFile() (io.Writer, error) {
 		0644,
 	)
 
-	if nil != err || nil == outputFile {
+	if nil != err ||
+		nil == outputFile {
 		return nil, errors.Errorf("打开文件 %s 失败, err = %v", newDailyFile, err)
 	}
 
