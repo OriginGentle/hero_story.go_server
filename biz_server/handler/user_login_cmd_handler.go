@@ -62,5 +62,4 @@ func handleUserLoginCmd(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
 		ctx.BindUserId(user.UserId)
 		ctx.Write(userLoginResult)
 	})
-
 }

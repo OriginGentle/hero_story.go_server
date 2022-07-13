@@ -141,4 +141,6 @@ func (ctx *CmdContextImpl) LoopReadMsg() {
 			cmdHandler(ctx, newMsgX)
 		})
 	}
+
+	handler.OnUserQuit(ctx)
 }

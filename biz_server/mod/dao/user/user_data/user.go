@@ -7,4 +7,5 @@ type User struct {
 	HeroAvatar    string `db:"hero_avatar"`
 	CreateTime    int64  `db:"create_time"`
 	LastLoginTime int64  `db:"last_login_time"`
+	MoveState     *MoveState
 }

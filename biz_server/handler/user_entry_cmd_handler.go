@@ -26,7 +26,7 @@ func handleUserEntryCmd(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
 	user := user_data.GetUserGroup().GetByUserId(ctx.GetUserId())
 
 	if nil == user {
-		log.Error("为找到用户数据，userId = %d",
+		log.Error("未找到用户数据，userId = %d",
 			ctx.GetUserId(),
 		)
 		return
