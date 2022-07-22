@@ -50,7 +50,6 @@ func execute() {
 					log.Error("发生异常，%+v", err)
 				}
 			}()
-
 			task()
 		}()
 	}

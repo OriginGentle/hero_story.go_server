@@ -12,9 +12,9 @@ func init() {
 	cmdHandlerMap[uint16(msg.MsgCode_WHO_ELSE_IS_HERE_CMD.Number())] = handleWhoElseIsHereCmd
 }
 
-func handleWhoElseIsHereCmd(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
+func handleWhoElseIsHereCmd(ctx base.ICmdContext, _ *dynamicpb.Message) {
 	if nil == ctx ||
-		ctx.GetUserId() <= 0 || nil == pbMsgObj {
+		ctx.GetUserId() <= 0 {
 		return
 	}
 
@@ -32,7 +32,7 @@ func handleWhoElseIsHereCmd(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
 		}
 
 		userInfo := &msg.WhoElseIsHereResult_UserInfo{
-			UserId:     uint32(ctx.GetUserId()),
+			UserId:     uint32(user.UserId),
 			UserName:   user.UserName,
 			HeroAvatar: user.HeroAvatar,
 		}
