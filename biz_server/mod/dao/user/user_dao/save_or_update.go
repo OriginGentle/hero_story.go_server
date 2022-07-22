@@ -8,10 +8,10 @@ import (
 
 const sqlSaveOrUpdate = `
 insert into t_user(
-	user_name,password,hero_avatar,create_time,last_login_time
+	user_name,password,hero_avatar,curr_hp,create_time,last_login_time
 ) value (
-	?,?,?,?,?
-) on duplicate key update last_login_time = ?
+	?,?,?,?,?,?
+) on duplicate key update curr_hp = values(curr_hp),last_login_time = values(last_login_time)
 `
 
 func SaveOrUpdate(user *user_data.User) {
@@ -30,8 +30,8 @@ func SaveOrUpdate(user *user_data.User) {
 		user.UserName,
 		user.Password,
 		user.HeroAvatar,
+		user.CurrHp,
 		user.CreateTime,
-		user.LastLoginTime,
 		user.LastLoginTime,
 	)
 
@@ -44,6 +44,7 @@ func SaveOrUpdate(user *user_data.User) {
 
 	if nil != err {
 		log.Error("%+v", err)
+		return
 	}
 
 	user.UserId = rowId

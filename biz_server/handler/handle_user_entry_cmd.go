@@ -15,6 +15,7 @@ func init() {
 
 func handleUserEntryCmd(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
 	if nil == ctx ||
+		ctx.GetUserId() <= 0 ||
 		nil == pbMsgObj {
 		return
 	}

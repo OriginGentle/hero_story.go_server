@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+// LoginByPasswordAsync 根据用户名和密码进行登录
+// 返回一个异步的业务结果
 func LoginByPasswordAsync(userName string, password string) *base.AsyncBizResult {
 	if len(userName) <= 0 ||
 		len(password) <= 0 {

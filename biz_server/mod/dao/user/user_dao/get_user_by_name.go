@@ -6,7 +6,7 @@ import (
 	"hero_story.go_server/comm/log"
 )
 
-const sqlGetUserByName = "select user_id,user_name,password,hero_avatar from t_user where user_name = ?"
+const sqlGetUserByName = `select user_id,user_name,password,hero_avatar,curr_hp from t_user where user_name = ?`
 
 func GetUserByName(userName string) *user_data.User {
 	if len(userName) <= 0 {
@@ -26,6 +26,7 @@ func GetUserByName(userName string) *user_data.User {
 		&user.UserName,
 		&user.Password,
 		&user.HeroAvatar,
+		&user.CurrHp,
 	)
 
 	if nil != err {

@@ -7,6 +7,7 @@ import (
 	"hero_story.go_server/comm/log"
 )
 
+// OnUserQuit 用户退游戏时执行
 func OnUserQuit(ctx base.ICmdContext) {
 	if nil == ctx {
 		return

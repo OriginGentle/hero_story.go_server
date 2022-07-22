@@ -11,6 +11,7 @@ type CmdHandlerFunc func(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message)
 // 消息处理器字典	key = msgCode val = CmdHandlerFunc
 var cmdHandlerMap = make(map[uint16]CmdHandlerFunc)
 
+// CreateCmdHandler 根据消息代号创建指令处理器
 func CreateCmdHandler(msgCode uint16) CmdHandlerFunc {
 	return cmdHandlerMap[msgCode]
 }

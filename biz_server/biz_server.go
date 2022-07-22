@@ -27,7 +27,8 @@ func main() {
 }
 
 func webSocketHandshake(w http.ResponseWriter, r *http.Request) {
-	if nil == w || nil == r {
+	if nil == w ||
+		nil == r {
 		return
 	}
 
@@ -42,9 +43,9 @@ func webSocketHandshake(w http.ResponseWriter, r *http.Request) {
 		_ = conn.Close()
 	}()
 
-	log.Info("有新客户端连入,客户端地址,%+v", conn.LocalAddr())
+	log.Info("有新客户端连入")
 
-	sessionId++
+	sessionId += 1
 
 	ctx := &myWebsocket.CmdContextImpl{
 		Conn:      conn,
