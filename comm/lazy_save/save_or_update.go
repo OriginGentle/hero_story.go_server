@@ -27,7 +27,7 @@ func SaveOrUpdate(lso LazySaveObj) {
 		return
 	}
 
-	newRecord := lazySaveRecord{}
+	newRecord := &lazySaveRecord{}
 	newRecord.lsoRef = lso
 	newRecord.setLastUpdateTime(nowTime)
 	lsoMap.Store(lso.GetLsoId(), newRecord)
@@ -35,33 +35,35 @@ func SaveOrUpdate(lso LazySaveObj) {
 
 func startSave() {
 	go func() {
-		time.Sleep(time.Second)
+		for {
+			time.Sleep(time.Second)
 
-		nowTim := time.Now().UnixMilli()
-		deleteLsoIdArray := make([]string, 64)
+			nowTim := time.Now().UnixMilli()
+			deleteLsoIdArray := make([]string, 64)
 
-		lsoMap.Range(func(_, val interface{}) bool {
-			if nil == val {
+			lsoMap.Range(func(_, val interface{}) bool {
+				if nil == val {
+					return true
+				}
+
+				currRecord := val.(*lazySaveRecord)
+
+				if nowTim-currRecord.getLastUpdateTime() < 20000 {
+					return true
+				}
+
+				log.Info("执行延时保存，lsoId = %s", currRecord.lsoRef.GetLsoId())
+
+				// 执行延时保存
+				currRecord.lsoRef.SaveOrUpdate(nil)
+
+				deleteLsoIdArray = append(deleteLsoIdArray, currRecord.lsoRef.GetLsoId())
 				return true
+			})
+
+			for _, lsoId := range deleteLsoIdArray {
+				lsoMap.Delete(lsoId)
 			}
-
-			currRecord := val.(*lazySaveRecord)
-
-			if nowTim-currRecord.getLastUpdateTime() < 20000 {
-				return true
-			}
-
-			log.Info("执行延时保存，lsoId = %s", currRecord.lsoRef.GetLsoId())
-
-			// 执行延时保存
-			currRecord.lsoRef.SaveOrUpdate(nil)
-
-			deleteLsoIdArray = append(deleteLsoIdArray, currRecord.lsoRef.GetLsoId())
-			return true
-		})
-
-		for _, lsoId := range deleteLsoIdArray {
-			lsoMap.Delete(lsoId)
 		}
 	}()
 }

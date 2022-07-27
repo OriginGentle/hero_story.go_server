@@ -17,14 +17,14 @@ type User struct {
 }
 
 func (user *User) GetComponentMap() *sync.Map {
-	if nil != user {
+	if nil != user.componentMap {
 		return user.componentMap
 	}
 
 	user.tempLocker.Lock()
 	defer user.tempLocker.Unlock()
 
-	if nil != user {
+	if nil != user.componentMap {
 		return user.componentMap
 	}
 
