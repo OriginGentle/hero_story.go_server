@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"github.com/gorilla/websocket"
 	"google.golang.org/protobuf/reflect/protoreflect"
-	"hero_story.go_server/biz_server/handler"
+	"hero_story.go_server/biz_server/cmd_handler"
 	"hero_story.go_server/biz_server/msg"
 	"hero_story.go_server/comm/log"
 	"hero_story.go_server/comm/main_thread"
@@ -128,7 +128,7 @@ func (ctx *CmdContextImpl) LoopReadMsg() {
 			msgCode, newMsgX.Descriptor().Name(),
 		)
 
-		cmdHandler := handler.CreateCmdHandler(msgCode)
+		cmdHandler := cmd_handler.CreateCmdHandler(msgCode)
 
 		if nil == cmdHandler {
 			log.Error("未找到指令处理器,msgCode = %d",
@@ -142,5 +142,5 @@ func (ctx *CmdContextImpl) LoopReadMsg() {
 		})
 	}
 
-	handler.OnUserQuit(ctx)
+	cmd_handler.OnUserQuit(ctx)
 }

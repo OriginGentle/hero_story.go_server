@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gorilla/websocket"
-	"hero_story.go_server/biz_server/network/broadcaster"
-	myWebsocket "hero_story.go_server/biz_server/network/websocket"
+	mywebsocket "hero_story.go_server/biz_server/network/websocket"
 	"hero_story.go_server/comm/log"
 	"net/http"
 )
@@ -20,6 +20,7 @@ var sessionId int32 = 0
 
 // 启动业务服务器
 func main() {
+	fmt.Printf("启动业务服务器")
 	log.Config("./log/biz_server.log")
 
 	http.HandleFunc("/websocket", webSocketHandshake)
@@ -47,18 +48,25 @@ func webSocketHandshake(w http.ResponseWriter, r *http.Request) {
 
 	sessionId += 1
 
-	ctx := &myWebsocket.CmdContextImpl{
-		Conn:      conn,
-		SessionId: sessionId,
+	//ctx := &myWebsocket.CmdContextImpl{
+	//	Conn:      conn,
+	//	SessionId: sessionId,
+	//}
+	//
+	//// 将指令上下文添加到分组
+	//// 当断开连接时移除指令上下文
+	//broadcaster.AddCmdCtx(sessionId, ctx)
+	//defer broadcaster.RemoveBySessionId(sessionId)
+	//
+	//// 循环发送消息
+	//ctx.LoopSendMsg()
+	//// 循环读取消息
+	//ctx.LoopReadMsg()
+
+	myConn := &mywebsocket.GatewayServerConn{
+		WsConn: conn,
 	}
 
-	// 将指令上下文添加到分组
-	// 当断开连接时移除指令上下文
-	broadcaster.AddCmdCtx(sessionId, ctx)
-	defer broadcaster.RemoveBySessionId(sessionId)
-
-	// 循环发送消息
-	ctx.LoopSendMsg()
-	// 循环读取消息
-	ctx.LoopReadMsg()
+	myConn.LoopSendMsg()
+	myConn.LoopReadMsg()
 }

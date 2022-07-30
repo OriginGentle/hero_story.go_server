@@ -1,4 +1,4 @@
-package handler
+package cmd_handler
 
 import (
 	"google.golang.org/protobuf/types/dynamicpb"
