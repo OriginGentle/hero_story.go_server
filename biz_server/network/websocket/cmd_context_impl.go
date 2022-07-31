@@ -142,5 +142,5 @@ func (ctx *CmdContextImpl) LoopReadMsg() {
 		})
 	}
 
-	cmd_handler.OnUserQuit(ctx)
+	cmd_handler.OnUserQuit(ctx.userId)
 }

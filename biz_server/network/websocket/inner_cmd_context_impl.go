@@ -59,7 +59,12 @@ func (ctx *innerCmdContextImpl) SendError(errorCode int, errorInfo string) {
 
 // Disconnect 断开连接
 func (ctx *innerCmdContextImpl) Disconnect() {
-	if nil != ctx.WsConn {
-		_ = ctx.WsConn.Close()
+	innerMsg := &msg.InternalServerMsg{
+		GatewayServerId: ctx.gatewayServerId,
+		SessionId:       ctx.remoteSessionId,
+		UserId:          ctx.userId,
+		Disconnect:      1,
 	}
+
+	ctx.GatewayServerConn.sendMsgQ <- innerMsg
 }

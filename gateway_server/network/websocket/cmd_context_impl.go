@@ -82,7 +82,7 @@ func (ctx *CmdContextImpl) LoopSendMsg() {
 	}()
 }
 
-// LoopReadMsg 循环读取从客户端发送的消息
+// LoopReadMsg 循环读取游戏客户端发送的消息
 // 游戏客户端 --> 网关服务器
 func (ctx *CmdContextImpl) LoopReadMsg() {
 	if nil == ctx.Conn {
@@ -94,7 +94,7 @@ func (ctx *CmdContextImpl) LoopReadMsg() {
 	t0 := int64(0)
 	counter := 0
 
-	// 创建到游戏服的连接
+	// 创建到游戏服务器的连接
 	bizServerConn, err := biz_server_finder.GetBizServerConn()
 
 	if nil != err {
@@ -108,7 +108,7 @@ func (ctx *CmdContextImpl) LoopReadMsg() {
 		msgType, msgData, err := ctx.Conn.ReadMessage()
 
 		if nil != err {
-			log.Error("消息读取异常，err = %+v", err)
+			log.Error("游戏客户端消息读取异常，err = %+v", err)
 			break
 		}
 
@@ -132,7 +132,7 @@ func (ctx *CmdContextImpl) LoopReadMsg() {
 				}
 			}()
 
-			log.Info("收到客户端消息并转发")
+			log.Info("收到游戏客户端消息并转发")
 
 			// 包装消息
 			innerMsg := &msg.InternalServerMsg{
@@ -144,10 +144,22 @@ func (ctx *CmdContextImpl) LoopReadMsg() {
 
 			innerMsgByteArray := innerMsg.ToByteArray()
 
-			// 将客户端消息转发给游戏服
+			// 将游戏客户端消息转发给游戏服
 			if err := bizServerConn.WriteMessage(msgType, innerMsgByteArray); nil != err {
 				log.Error("消息转发失败，%+v", err)
 			}
 		}()
 	}
+
+	// 主动向游戏服务器发送断开连接消息
+	innerMsg := &msg.InternalServerMsg{
+		GatewayServerId: 0,
+		SessionId:       ctx.SessionId,
+		UserId:          ctx.GetUserId(),
+		Disconnect:      1,
+	}
+
+	innerMsgByteArray := innerMsg.ToByteArray()
+
+	_ = bizServerConn.WriteMessage(websocket.BinaryMessage, innerMsgByteArray)
 }

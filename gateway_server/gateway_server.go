@@ -25,7 +25,6 @@ func main() {
 	fmt.Println("启动网关服务器")
 
 	log.Config("./log/gateway_server.log")
-	log.Info("Hello,gateway server")
 
 	http.HandleFunc("/websocket", webSocketHandshake)
 	_ = http.ListenAndServe("127.0.0.1:54321", nil)

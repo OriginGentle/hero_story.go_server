@@ -3,23 +3,26 @@ package broadcaster
 import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"hero_story.go_server/biz_server/base"
+	"sync"
 )
 
-var innerMap = make(map[int32]base.ICmdContext)
+var innerMap = &sync.Map{}
 
-func AddCmdCtx(sessionId int32, ctx base.ICmdContext) {
-	if nil == ctx {
+func AddCmdCtx(sessionUId string, cmdCtx base.ICmdContext) {
+	if len(sessionUId) <= 0 ||
+		nil == cmdCtx {
 		return
 	}
 
-	innerMap[sessionId] = ctx
+	innerMap.Store(sessionUId, cmdCtx)
 }
 
-func RemoveBySessionId(sessionId int32) {
-	if sessionId <= 0 {
+func RemoveBySessionId(sessionUId string) {
+	if len(sessionUId) <= 0 {
 		return
 	}
-	delete(innerMap, sessionId)
+
+	innerMap.Delete(sessionUId)
 }
 
 // Broadcast 广播消息
@@ -28,9 +31,13 @@ func Broadcast(msgObj protoreflect.ProtoMessage) {
 		return
 	}
 
-	for _, ctx := range innerMap {
-		if nil != ctx {
-			ctx.Write(msgObj)
+	innerMap.Range(func(key interface{}, val interface{}) bool {
+		if nil == key ||
+			nil == val {
+			return true
 		}
-	}
+
+		val.(base.ICmdContext).Write(msgObj)
+		return true
+	})
 }

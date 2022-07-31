@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/websocket"
 	"hero_story.go_server/biz_server/cmd_handler"
 	"hero_story.go_server/biz_server/msg"
+	"hero_story.go_server/biz_server/network/broadcaster"
 	"hero_story.go_server/comm/log"
 	"hero_story.go_server/comm/main_thread"
 	"sync"
@@ -47,7 +48,7 @@ func (conn *GatewayServerConn) LoopReadMsg() {
 
 	conn.ctxMap = &sync.Map{}
 
-	// 循环读取从网关服务器发送的消息
+	// 循环读取网关服务器发送的消息
 	for {
 		_, msgData, err := conn.WsConn.ReadMessage()
 
@@ -63,9 +64,15 @@ func (conn *GatewayServerConn) LoopReadMsg() {
 				}
 			}()
 
-			// 网关发送的消息，此时是带包装的消息
+			// 网关服务器发来的消息，此时是带包装的消息
 			innerMsg := &msg.InternalServerMsg{}
 			innerMsg.FromByteArray(msgData)
+
+			if 0 != innerMsg.Disconnect {
+				cmd_handler.OnUserQuit(innerMsg.UserId)
+				return
+			}
+
 			// 拆包装后，才是真正的用户消息
 			realMsgData := innerMsg.MsgData
 
@@ -73,7 +80,8 @@ func (conn *GatewayServerConn) LoopReadMsg() {
 			newMsgX, err := msg.Decode(realMsgData[4:], int16(msgCode))
 
 			if nil != err {
-				log.Error("消息解码错误,msgCode = %d, error = %+v",
+				log.Error(
+					"消息解码错误,msgCode = %d, error = %+v",
 					msgCode,
 					err,
 				)
@@ -127,10 +135,11 @@ func (conn *GatewayServerConn) LoopReadMsg() {
 				cmdHandler(currCtx, newMsgX)
 			})
 
+			broadcaster.AddCmdCtx(sessionUId, currCtx)
+
 			// 在这里判断 ctxMap 里有没有长时间没有发送消息的用户，
 			// 如果有，就删除掉
 			conn.clearCtxMap()
-
 		}()
 
 	}
@@ -174,5 +183,6 @@ func (conn *GatewayServerConn) clearCtxMap() {
 
 		log.Info("删除 Ctx, sessionUId = %+v", sessionUId)
 		conn.ctxMap.Delete(sessionUId)
+		broadcaster.RemoveBySessionId(sessionUId.(string))
 	}
 }

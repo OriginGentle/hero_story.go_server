@@ -2,7 +2,6 @@ package cmd_handler
 
 import (
 	"fmt"
-	"hero_story.go_server/biz_server/base"
 	"hero_story.go_server/biz_server/mod/dao/user/user_data"
 	"hero_story.go_server/biz_server/mod/dao/user/user_lock"
 	"hero_story.go_server/biz_server/mod/dao/user/user_lso"
@@ -12,24 +11,24 @@ import (
 	"hero_story.go_server/comm/log"
 )
 
-// OnUserQuit 用户退游戏时执行
-func OnUserQuit(ctx base.ICmdContext) {
-	if nil == ctx {
+// OnUserQuit 用户退出游戏时执行
+func OnUserQuit(userId int64) {
+	if userId <= 0 {
 		return
 	}
 
-	log.Info("用户离线,userId = %d", ctx.GetUserId())
+	log.Info("用户离线,userId = %d", userId)
 
 	// 加登出锁
-	key := fmt.Sprintf("UserQuit_%d", ctx.GetUserId())
+	key := fmt.Sprintf("UserQuit_%d", userId)
 	user_lock.TryLock(key)
 
 	// 广播用户退出消息
 	broadcaster.Broadcast(&msg.UserQuitResult{
-		QuitUserId: uint32(ctx.GetUserId()),
+		QuitUserId: uint32(userId),
 	})
 
-	user := user_data.GetUserGroup().GetByUserId(ctx.GetUserId())
+	user := user_data.GetUserGroup().GetByUserId(userId)
 
 	if nil == user {
 		return
@@ -38,9 +37,10 @@ func OnUserQuit(ctx base.ICmdContext) {
 	userLso := user_lso.GetUserLso(user)
 	lazy_save.Discard(userLso)
 
-	log.Info("用户离线，立即保存数据！userId = %d", ctx.GetUserId())
+	log.Info("用户离线，立即保存数据！userId = %d", userId)
 
 	userLso.SaveOrUpdate(func() {
+		// 释放登出锁
 		user_lock.UnLock(key)
 	})
 }

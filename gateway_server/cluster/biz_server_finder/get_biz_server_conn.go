@@ -60,6 +60,11 @@ func GetBizServerConn() (*websocket.Conn, error) {
 				continue
 			}
 
+			if cmdCtx.GetUserId() <= 0 &&
+				innerMsg.UserId > 0 {
+				cmdCtx.BindUserId(innerMsg.UserId)
+			}
+
 			cmdCtx.Write(innerMsg.MsgData)
 		}
 	}()
