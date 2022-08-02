@@ -9,6 +9,8 @@ type worker struct {
 	taskQ chan func()
 }
 
+// process 处理异步过程
+// 将异步操作放到队列里，并不立即执行
 func (w *worker) process(asyncOp func(), continueWith func()) {
 	if nil == asyncOp {
 		log.Error("异步操作为空")

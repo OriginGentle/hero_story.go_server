@@ -16,6 +16,7 @@ const readMsgCountPreSecond = 16
 const msgSize = 64 * 1024
 
 // CmdContextImpl 就是ICmdContext的Websocket实现
+// 相当于游戏客户端直连游戏服务器
 type CmdContextImpl struct {
 	userId       int64
 	clientIpAddr string

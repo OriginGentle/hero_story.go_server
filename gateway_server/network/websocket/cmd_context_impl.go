@@ -43,8 +43,7 @@ func (ctx *CmdContextImpl) Write(byteArray []byte) {
 }
 
 func (ctx *CmdContextImpl) SendError(errorCode int, errorInfo string) {
-	if len(errorInfo) <= 0 &&
-		errorCode < 0 {
+	if len(errorInfo) <= 0 && errorCode < 0 {
 		return
 	}
 }

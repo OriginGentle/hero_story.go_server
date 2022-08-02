@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/websocket"
 	"hero_story.go_server/comm/log"
 	"hero_story.go_server/gateway_server/base"
+	"hero_story.go_server/gateway_server/cluster/biz_server_finder"
 	mywebsocket "hero_story.go_server/gateway_server/network/websocket"
 	"net/http"
 )
@@ -25,6 +26,8 @@ func main() {
 	fmt.Println("启动网关服务器")
 
 	log.Config("./log/gateway_server.log")
+
+	biz_server_finder.FindNewBizServer()
 
 	http.HandleFunc("/websocket", webSocketHandshake)
 	_ = http.ListenAndServe("127.0.0.1:54321", nil)

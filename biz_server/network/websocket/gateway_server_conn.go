@@ -80,28 +80,21 @@ func (conn *GatewayServerConn) LoopReadMsg() {
 			newMsgX, err := msg.Decode(realMsgData[4:], int16(msgCode))
 
 			if nil != err {
-				log.Error(
-					"消息解码错误,msgCode = %d, error = %+v",
-					msgCode,
-					err,
+				log.Error("消息解码错误,msgCode = %d, error = %+v",
+					msgCode, err,
 				)
 				return
 			}
 
-			log.Info(
-				"收到客户端消息, remoteSessionId = %d, userId = %d, msgCode = %d, msgName = %s",
-				innerMsg.SessionId,
-				innerMsg.UserId,
-				msgCode,
-				newMsgX.Descriptor().Name(),
+			log.Info("收到客户端消息, remoteSessionId = %d, userId = %d, msgCode = %d, msgName = %s",
+				innerMsg.SessionId, innerMsg.UserId, msgCode, newMsgX.Descriptor().Name(),
 			)
 
 			// 创建指令处理器
 			cmdHandler := cmd_handler.CreateCmdHandler(msgCode)
 
 			if nil == cmdHandler {
-				log.Error(
-					"未找到指令处理器, msgCode = %d",
+				log.Error("未找到指令处理器, msgCode = %d",
 					msgCode,
 				)
 				return
@@ -141,7 +134,6 @@ func (conn *GatewayServerConn) LoopReadMsg() {
 			// 如果有，就删除掉
 			conn.clearCtxMap()
 		}()
-
 	}
 }
 
