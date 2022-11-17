@@ -1,13 +1,16 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"hero_story.go_server/comm/log"
 	"hero_story.go_server/gateway_server/base"
+	"hero_story.go_server/gateway_server/cluster"
 	"hero_story.go_server/gateway_server/cluster/biz_server_finder"
-	mywebsocket "hero_story.go_server/gateway_server/network/websocket"
+	myWebsocket "hero_story.go_server/gateway_server/network/websocket"
 	"net/http"
+	"strings"
 )
 
 var upGrader = &websocket.Upgrader{
@@ -18,31 +21,40 @@ var upGrader = &websocket.Upgrader{
 	},
 }
 
+var pServerId *int
+var pBindHost *string
+var pBindPort *int
+var pEtcdEndpointArray *string
 var sessionId int32 = 0
 
 // 启动网关服务器
 func main() {
-
 	fmt.Println("启动网关服务器")
-
 	log.Config("./log/gateway_server.log")
 
+	pServerId = flag.Int("server_id", 0, "业务服务器 id")
+	pBindHost = flag.String("bind_host", "127.0.0.1", "绑定主机地址")
+	pBindPort = flag.Int("bind_port", 54321, "绑定端口号")
+	pEtcdEndpointArray = flag.String("etcd_endpoint_array", "127.0.0.1:2379", "Etcd 节点地址数组")
+	flag.Parse()
+
+	etcdEndpointArray := strings.Split(*pEtcdEndpointArray, ",")
+	cluster.InitEtcdCli(etcdEndpointArray)
 	biz_server_finder.FindNewBizServer()
 
+	log.Info("启动网关服务器,serverId = %d, serverAddr = %s:%d", *pServerId, *pBindHost, *pBindPort)
 	http.HandleFunc("/websocket", webSocketHandshake)
-	_ = http.ListenAndServe("127.0.0.1:54321", nil)
+	_ = http.ListenAndServe(fmt.Sprintf("%s:%d", *pBindHost, *pBindPort), nil)
 }
 
-func webSocketHandshake(w http.ResponseWriter, r *http.Request) {
-	if nil == w ||
-		nil == r {
+func webSocketHandshake(writer http.ResponseWriter, request *http.Request) {
+	if nil == writer || nil == request {
 		return
 	}
 
-	conn, err := upGrader.Upgrade(w, r, nil)
-
+	conn, err := upGrader.Upgrade(writer, request, nil)
 	if nil != err {
-		log.Error("Websocket upgrade error, %+v", err)
+		log.Error("Websocket upgrade error, %v", err)
 		return
 	}
 
@@ -51,12 +63,11 @@ func webSocketHandshake(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	log.Info("有新客户端连入")
-
 	sessionId += 1
-
-	cmdCtx := &mywebsocket.CmdContextImpl{
-		Conn:      conn,
-		SessionId: sessionId,
+	cmdCtx := &myWebsocket.CmdContextImpl{
+		Conn:         conn,
+		SessionId:    sessionId,
+		GameServerId: int32(*pServerId),
 	}
 
 	base.GetCmdContextImplGroup().Add(cmdCtx.SessionId, cmdCtx)

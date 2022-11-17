@@ -10,7 +10,7 @@ import _ "github.com/go-sql-driver/mysql"
 var MysqlDB *sql.DB
 
 const DriverName = "mysql"
-const DataSourceName = "root:root@tcp(localhost:3236)/hero_story"
+const DataSourceName = "root:Ycb@990121@tcp(139.155.0.174:3236)/hero_story"
 
 func init() {
 	var mysqlErr error
