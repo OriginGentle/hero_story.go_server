@@ -8,21 +8,23 @@ import (
 
 var innerMap = &sync.Map{}
 
-func AddCmdCtx(sessionUId string, cmdCtx base.ICmdContext) {
-	if len(sessionUId) <= 0 ||
+// AddCmdCtx 添加指令上下文分组
+func AddCmdCtx(sessionId string, cmdCtx base.ICmdContext) {
+	if len(sessionId) <= 0 ||
 		nil == cmdCtx {
 		return
 	}
 
-	innerMap.Store(sessionUId, cmdCtx)
+	innerMap.Store(sessionId, cmdCtx)
 }
 
-func RemoveBySessionId(sessionUId string) {
-	if len(sessionUId) <= 0 {
+// RemoveCmdCtxBySessionId 移除指令上下文分组
+func RemoveCmdCtxBySessionId(sessionId string) {
+	if len(sessionId) <= 0 {
 		return
 	}
 
-	innerMap.Delete(sessionUId)
+	innerMap.Delete(sessionId)
 }
 
 // Broadcast 广播消息

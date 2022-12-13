@@ -16,12 +16,12 @@ type BizServerInstance struct {
 }
 
 func addBizServerInstance(bizServerInstance *BizServerInstance) {
-	if nil == bizServerInstance || nil == bizServerInstance.ServerJobTypeArray ||
-		len(bizServerInstance.ServerJobTypeArray) <= 0 {
+	if nil == bizServerInstance || nil == bizServerInstance.SjtArray ||
+		len(bizServerInstance.SjtArray) <= 0 {
 		return
 	}
 
-	for _, sjt := range bizServerInstance.ServerJobTypeArray {
+	for _, sjt := range bizServerInstance.SjtArray {
 		innerMap, ok := connectedBizServerMap.Load(sjt)
 		if !ok {
 			innerMap = &sync.Map{}
@@ -38,12 +38,12 @@ func addBizServerInstance(bizServerInstance *BizServerInstance) {
 }
 
 func deleteBizServerInstance(bizServerInstance *BizServerInstance) {
-	if nil == bizServerInstance || nil == bizServerInstance.ServerJobTypeArray ||
-		len(bizServerInstance.ServerJobTypeArray) <= 0 {
+	if nil == bizServerInstance || nil == bizServerInstance.SjtArray ||
+		len(bizServerInstance.SjtArray) <= 0 {
 		return
 	}
 
-	for _, sjt := range bizServerInstance.ServerJobTypeArray {
+	for _, sjt := range bizServerInstance.SjtArray {
 		innerMap, ok := bizServerInstanceMap.Load(sjt)
 
 		if !ok {

@@ -15,7 +15,7 @@ type AsyncBizResult struct {
 	// 是否已有回调函数
 	hasCompleteFunc int32
 	// 是否已经调用过完成函数
-	completeFuncHasAlreadyBeenCalled int32
+	completeFuncHasAlreadyBeenCalled int32 // 默认值:0,没有被调用过
 }
 
 // GetReturnedObj 获取返回值

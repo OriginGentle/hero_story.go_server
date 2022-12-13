@@ -2,8 +2,8 @@ package user_lso
 
 import (
 	"fmt"
-	"hero_story.go_server/biz_server/mod/dao/user/user_dao"
-	"hero_story.go_server/biz_server/mod/dao/user/user_data"
+	"hero_story.go_server/biz_server/mod/user/user_dao"
+	"hero_story.go_server/biz_server/mod/user/user_data"
 	"hero_story.go_server/comm/async_op"
 )
 

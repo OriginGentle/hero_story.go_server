@@ -4,8 +4,8 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/dynamicpb"
 	"hero_story.go_server/biz_server/base"
-	"hero_story.go_server/biz_server/mod/dao/user/user_data"
-	"hero_story.go_server/biz_server/mod/service/login/login_srv"
+	"hero_story.go_server/biz_server/mod/login/login_srv"
+	"hero_story.go_server/biz_server/mod/user/user_data"
 	"hero_story.go_server/biz_server/msg"
 	"hero_story.go_server/comm/log"
 )
@@ -14,9 +14,9 @@ func init() {
 	cmdHandlerMap[uint16(msg.MsgCode_USER_LOGIN_CMD.Number())] = handleUserLoginCmd
 }
 
+// 用户登陆指令处理器
 func handleUserLoginCmd(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
-	if nil == ctx ||
-		nil == pbMsgObj {
+	if nil == ctx || nil == pbMsgObj {
 		return
 	}
 
@@ -32,12 +32,11 @@ func handleUserLoginCmd(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
 		userLoginCmd.GetPassword(),
 	)
 
+	// 根据用户名称和密码执行登陆逻辑
 	bizResult := login_srv.LoginByPasswordAsync(userLoginCmd.GetUserName(), userLoginCmd.GetPassword())
 
 	if nil == bizResult {
-		log.Error("业务结果返回空值,userName = %s",
-			userLoginCmd.GetUserName(),
-		)
+		log.Error("业务结果返回空值,userName = %s", userLoginCmd.GetUserName())
 		return
 	}
 
@@ -45,9 +44,7 @@ func handleUserLoginCmd(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
 		returnedObj := bizResult.GetReturnedObj()
 
 		if nil == returnedObj {
-			log.Error("用户不存在,userName = %s",
-				userLoginCmd.GetUserName(),
-			)
+			log.Error("用户不存在,userName = %s", userLoginCmd.GetUserName())
 			return
 		}
 

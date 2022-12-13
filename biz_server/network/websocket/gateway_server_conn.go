@@ -175,6 +175,6 @@ func (conn *GatewayServerConn) clearCtxMap() {
 
 		log.Info("删除 Ctx, sessionUId = %+v", sessionUId)
 		conn.ctxMap.Delete(sessionUId)
-		broadcaster.RemoveBySessionId(sessionUId.(string))
+		broadcaster.RemoveCmdCtxBySessionId(sessionUId.(string))
 	}
 }

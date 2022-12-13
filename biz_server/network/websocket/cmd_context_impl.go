@@ -59,7 +59,10 @@ func (ctx *CmdContextImpl) Disconnect() {
 	}
 }
 
+// LoopSendMsg 循环发送消息,
+// 内部通过协程来实现
 func (ctx *CmdContextImpl) LoopSendMsg() {
+	// 构建发送队列
 	ctx.sendMsgQ = make(chan protoreflect.ProtoMessage, 64)
 
 	go func() { // 启动一个协程，负责发送消息
@@ -77,7 +80,16 @@ func (ctx *CmdContextImpl) LoopSendMsg() {
 				return
 			}
 
-			if err := ctx.Conn.WriteMessage(websocket.BinaryMessage, byteArray); nil != err {
+			innerMsg := &msg.InternalServerMsg{}
+			innerMsg.GatewayServerId = 0
+			innerMsg.SessionId = ctx.SessionId
+			innerMsg.UserId = ctx.GetUserId()
+			innerMsg.MsgData = byteArray
+
+			innerMsgByteArray := innerMsg.ToByteArray()
+
+			// 返回消息给网关服务器
+			if err := ctx.Conn.WriteMessage(websocket.BinaryMessage, innerMsgByteArray); nil != err {
 				log.Error("消息发送异常，err = %+v", err)
 			}
 		}
@@ -115,32 +127,41 @@ func (ctx *CmdContextImpl) LoopReadMsg() {
 		}
 		counter++
 
-		msgCode := binary.BigEndian.Uint16(msgData[2:4])
-		newMsgX, err := msg.Decode(msgData[4:], int16(msgCode))
+		func() {
+			defer func() {
+				if err := recover(); nil != err {
+					log.Error("发生异常, %+v", err)
+				}
+			}()
 
-		if nil != err {
-			log.Error("消息解码错误,msgCode = %d ,err = %+v ",
-				msgCode, err,
-			)
-			continue
-		}
+			// 网关服务器发来的消息， 可以看成是带包装的消息
+			innerMsg := &msg.InternalServerMsg{}
+			innerMsg.FromByteArray(msgData)
 
-		log.Info("收到客户端消息,msgCode = %d,msgName = %s",
-			msgCode, newMsgX.Descriptor().Name(),
-		)
+			// 拆掉包装, 拿到真实消息
+			realMsgData := innerMsg.MsgData
+			msgCode := binary.BigEndian.Uint16(realMsgData[2:4]) // [2, 4) 2, 3 = 3rd, 4th
+			newMsgX, err := msg.Decode(realMsgData[4:], int16(msgCode))
 
-		cmdHandler := cmd_handler.CreateCmdHandler(msgCode)
+			if nil != err {
+				log.Error("消息解码错误, msgCode = %d, error = %+v", msgCode, err)
+				return
+			}
 
-		if nil == cmdHandler {
-			log.Error("未找到指令处理器,msgCode = %d",
-				msgCode,
-			)
-			continue
-		}
+			log.Info("收到客户端消息, msgCode = %d, msgName = %s", msgCode, newMsgX.Descriptor().Name())
 
-		main_thread.Process(func() {
-			cmdHandler(ctx, newMsgX)
-		})
+			// 创建指令处理器
+			cmdHandler := cmd_handler.CreateCmdHandler(msgCode)
+
+			if nil == cmdHandler {
+				log.Error("未找到指令处理器, msgCode = %d", msgCode)
+				return
+			}
+
+			main_thread.Process(func() {
+				cmdHandler(ctx, newMsgX)
+			})
+		}()
 	}
 
 	cmd_handler.OnUserQuit(ctx.userId)

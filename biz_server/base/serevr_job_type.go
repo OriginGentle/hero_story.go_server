@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// ServerJobType 服务器职责类型
 type ServerJobType int32
 
 const (
@@ -37,7 +38,7 @@ func StringToServerJobType(strVal string) ServerJobType {
 	panic("无法转换为服务器类型职责！")
 }
 
-func StringToSeverJobTypeArray(strVal string) []ServerJobType {
+func StringToServerJobTypeArray(strVal string) []ServerJobType {
 	if len(strVal) <= 0 {
 		return nil
 	}

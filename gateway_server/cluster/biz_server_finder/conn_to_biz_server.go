@@ -17,8 +17,8 @@ func connToBizServer(bizServerData *bizsrvbase.BizServerData) {
 	if nil == bizServerData ||
 		bizServerData.ServerId <= 0 ||
 		len(bizServerData.ServerAddr) <= 0 ||
-		nil == bizServerData.ServerJobTypeArray ||
-		len(bizServerData.ServerJobTypeArray) <= 0 {
+		nil == bizServerData.SjtArray ||
+		len(bizServerData.SjtArray) <= 0 {
 		return
 	}
 

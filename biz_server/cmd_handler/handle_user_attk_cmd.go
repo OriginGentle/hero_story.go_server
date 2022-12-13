@@ -4,8 +4,8 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/dynamicpb"
 	"hero_story.go_server/biz_server/base"
-	"hero_story.go_server/biz_server/mod/dao/user/user_data"
-	"hero_story.go_server/biz_server/mod/dao/user/user_lso"
+	"hero_story.go_server/biz_server/mod/user/user_data"
+	"hero_story.go_server/biz_server/mod/user/user_lso"
 	"hero_story.go_server/biz_server/msg"
 	"hero_story.go_server/biz_server/network/broadcaster"
 	"hero_story.go_server/comm/lazy_save"
@@ -16,9 +16,9 @@ func init() {
 	cmdHandlerMap[uint16(msg.MsgCode_USER_ATTK_CMD.Number())] = handleUserAttkCmd
 }
 
+// 用户攻击指令处理器
 func handleUserAttkCmd(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
-	if nil == ctx ||
-		nil == pbMsgObj {
+	if nil == ctx || nil == pbMsgObj {
 		return
 	}
 

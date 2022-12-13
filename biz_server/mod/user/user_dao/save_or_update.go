@@ -2,7 +2,7 @@ package user_dao
 
 import (
 	"hero_story.go_server/biz_server/base"
-	"hero_story.go_server/biz_server/mod/dao/user/user_data"
+	"hero_story.go_server/biz_server/mod/user/user_data"
 	"hero_story.go_server/comm/log"
 )
 
@@ -14,6 +14,7 @@ insert into t_user(
 ) on duplicate key update curr_hp = values(curr_hp),last_login_time = values(last_login_time)
 `
 
+// SaveOrUpdate 保存或者更新用户数据
 func SaveOrUpdate(user *user_data.User) {
 	if nil == user {
 		return
