@@ -63,7 +63,9 @@ func webSocketHandshake(writer http.ResponseWriter, request *http.Request) {
 	}()
 
 	log.Info("有新客户端连入")
+
 	sessionId += 1
+
 	cmdCtx := &myWebsocket.CmdContextImpl{
 		Conn:         conn,
 		SessionId:    sessionId,

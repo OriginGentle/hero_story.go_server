@@ -33,7 +33,7 @@ func connToBizServer(bizServerData *bizsrvbase.BizServerData) {
 	newConn, _, err := websocket.DefaultDialer.Dial(
 		fmt.Sprintf("ws://%s/websocket", bizServerData.ServerAddr), nil)
 	if nil != err {
-		log.Error("%+v", err)
+		log.Error("创建到游戏服务器的连接失败:%+v", err)
 		return
 	}
 

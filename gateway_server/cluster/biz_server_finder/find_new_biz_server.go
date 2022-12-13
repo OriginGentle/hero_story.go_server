@@ -23,8 +23,10 @@ func FindNewBizServer() {
 				switch event.Type {
 				case 0: // PUT
 					log.Info("发现新的业务服务器, " + string(event.Kv.Value))
+
 					serverData := &base.BizServerData{}
 					_ = json.Unmarshal(event.Kv.Value, serverData)
+
 					connToBizServer(serverData)
 				case 1: // DELETE
 				}

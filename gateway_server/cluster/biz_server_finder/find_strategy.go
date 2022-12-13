@@ -39,6 +39,7 @@ func (finder *RandomFindStrategy) doFind(bizServerInstanceMap *sync.Map) (*BizSe
 
 	randIndex := rand.Int31n(int32(count))
 	findVal := varArray[randIndex]
+
 	return findVal.(*BizServerInstance), nil
 }
 
@@ -78,7 +79,7 @@ func (finder *LeastLoadFindStrategy) doFind(bizServerInstanceMap *sync.Map) (*Bi
 	var findBizServerInstance *BizServerInstance = nil
 	var minLoadCount int32 = 999999
 
-	bizServerInstanceMap.Range(func(_, val any) bool {
+	bizServerInstanceMap.Range(func(_, val interface{}) bool {
 		if nil == val {
 			return true
 		}
@@ -96,6 +97,7 @@ func (finder *LeastLoadFindStrategy) doFind(bizServerInstanceMap *sync.Map) (*Bi
 	}
 
 	log.Info("LeastLoadFindStrategy 找到了Id = %d 的业务服务器", findBizServerInstance.ServerId)
+
 	*finder.WriteServerId = findBizServerInstance.ServerId
 	return findBizServerInstance, nil
 }
