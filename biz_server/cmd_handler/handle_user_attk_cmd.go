@@ -9,7 +9,6 @@ import (
 	"hero_story.go_server/biz_server/msg"
 	"hero_story.go_server/biz_server/network/broadcaster"
 	"hero_story.go_server/comm/lazy_save"
-	"hero_story.go_server/comm/log"
 )
 
 func init() {
@@ -17,12 +16,11 @@ func init() {
 }
 
 // 用户攻击指令处理器
-func handleUserAttkCmd(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
-	if nil == ctx || nil == pbMsgObj {
+func handleUserAttkCmd(ctx base.MyCmdContext, pbMsgObj *dynamicpb.Message) {
+	if nil == ctx ||
+		nil == pbMsgObj {
 		return
 	}
-
-	log.Info("收到用户攻击消息,userId = %d", ctx.GetUserId())
 
 	userAttkCmd := &msg.UserAttkCmd{}
 
@@ -38,7 +36,7 @@ func handleUserAttkCmd(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
 
 	broadcaster.Broadcast(userAttkResult)
 
-	user := user_data.GetUserGroup().GetByUserId(int64(userAttkCmd.TargetUserId))
+	user := user_data.GetUserGroup().GetByUserId(int64(userAttkCmd.GetTargetUserId()))
 
 	if nil == user {
 		return
@@ -56,6 +54,6 @@ func handleUserAttkCmd(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
 
 	lso := user_lso.GetUserLso(user)
 
-	// 执行延时保存
+	// 执行延迟保存
 	lazy_save.SaveOrUpdate(lso)
 }

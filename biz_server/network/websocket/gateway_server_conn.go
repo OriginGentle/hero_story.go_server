@@ -3,20 +3,22 @@ package websocket
 import (
 	"encoding/binary"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/gorilla/websocket"
+	"hero_story.go_server/biz_server/base"
 	"hero_story.go_server/biz_server/cmd_handler"
 	"hero_story.go_server/biz_server/msg"
 	"hero_story.go_server/biz_server/network/broadcaster"
 	"hero_story.go_server/comm/log"
 	"hero_story.go_server/comm/main_thread"
-	"sync"
-	"time"
 )
 
 type GatewayServerConn struct {
 	GatewayServerId     int32
 	WsConn              *websocket.Conn
-	sendMsgQ            chan *msg.InternalServerMsg
+	sendMsgQ            chan *msg.InternalServerMsg // BlockingQueue
 	ctxMap              *sync.Map
 	ctxMapLastClearTime int64
 }
@@ -42,59 +44,73 @@ func (conn *GatewayServerConn) LoopSendMsg() {
 }
 
 func (conn *GatewayServerConn) LoopReadMsg() {
-	if nil == conn {
+	if nil == conn.WsConn {
 		return
 	}
 
 	conn.ctxMap = &sync.Map{}
 
-	// 循环读取网关服务器发送的消息
 	for {
 		_, msgData, err := conn.WsConn.ReadMessage()
 
 		if nil != err {
 			log.Error("%+v", err)
+			base.GetLoadStat().DeleteByGatewayServerId(conn.GatewayServerId)
 			break
 		}
 
 		func() {
 			defer func() {
 				if err := recover(); nil != err {
-					log.Error("发生异常，%+v", err)
+					log.Error("发生异常, %+v", err)
 				}
 			}()
 
-			// 网关服务器发来的消息，此时是带包装的消息
+			// 网关服务器发来的消息， 可以看成是带包装的消息
 			innerMsg := &msg.InternalServerMsg{}
+			//innerMsg.UserId
+			//innerMsg.GatewayServerId
+			//innerMsg.SessionId
+
 			innerMsg.FromByteArray(msgData)
 
 			if 0 != innerMsg.Disconnect {
 				cmd_handler.OnUserQuit(innerMsg.UserId)
+				base.GetLoadStat().DeleteUserId(innerMsg.GatewayServerId, innerMsg.UserId)
 				return
 			}
 
-			// 拆包装后，才是真正的用户消息
-			realMsgData := innerMsg.MsgData
+			if conn.GatewayServerId <= 0 {
+				conn.GatewayServerId = innerMsg.GatewayServerId
+			}
+
+			realMsgData := innerMsg.MsgData // 拆掉包装, 拿到真实消息 == 用户消息
 
 			msgCode := binary.BigEndian.Uint16(realMsgData[2:4])
 			newMsgX, err := msg.Decode(realMsgData[4:], int16(msgCode))
 
 			if nil != err {
-				log.Error("消息解码错误,msgCode = %d, error = %+v",
+				log.Error(
+					"消息解码错误, msgCode = %d, error = %+v",
 					msgCode, err,
 				)
 				return
 			}
 
-			log.Info("收到客户端消息, remoteSessionId = %d, userId = %d, msgCode = %d, msgName = %s",
-				innerMsg.SessionId, innerMsg.UserId, msgCode, newMsgX.Descriptor().Name(),
+			log.Info(
+				"收到客户端消息, remoteSessionId = %d, userId = %d, msgCode = %d, msgName = %s",
+				innerMsg.SessionId,
+				innerMsg.UserId,
+				msgCode,
+				newMsgX.Descriptor().Name(),
 			)
 
 			// 创建指令处理器
 			cmdHandler := cmd_handler.CreateCmdHandler(msgCode)
 
 			if nil == cmdHandler {
-				log.Error("未找到指令处理器, msgCode = %d",
+				log.Error(
+					"未找到指令处理器, msgCode = %d",
 					msgCode,
 				)
 				return
@@ -129,6 +145,7 @@ func (conn *GatewayServerConn) LoopReadMsg() {
 			})
 
 			broadcaster.AddCmdCtx(sessionUId, currCtx)
+			base.GetLoadStat().AddUserId(innerMsg.GatewayServerId, innerMsg.UserId)
 
 			// 在这里判断 ctxMap 里有没有长时间没有发送消息的用户，
 			// 如果有，就删除掉

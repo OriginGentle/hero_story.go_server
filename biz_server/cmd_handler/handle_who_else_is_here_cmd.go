@@ -13,17 +13,21 @@ func init() {
 }
 
 // 还有谁指令处理器
-func handleWhoElseIsHereCmd(ctx base.ICmdContext, _ *dynamicpb.Message) {
-	if nil == ctx || ctx.GetUserId() <= 0 {
+func handleWhoElseIsHereCmd(ctx base.MyCmdContext, _ *dynamicpb.Message) {
+	if nil == ctx ||
+		ctx.GetUserId() <= 0 {
 		return
 	}
 
-	log.Info("收到'还有谁'的消息,userId = %d", ctx.GetUserId())
+	log.Info(
+		"收到“还有谁”消息! userId = %d",
+		ctx.GetUserId(),
+	)
 
 	whoElseIsHereResult := &msg.WhoElseIsHereResult{}
 
 	// 获得所有用户
-	userALL := user_data.GetUserGroup().GetUserAll()
+	userALL := user_data.GetUserGroup().GetUserALL()
 
 	for _, user := range userALL {
 		if nil == user {
@@ -47,8 +51,10 @@ func handleWhoElseIsHereCmd(ctx base.ICmdContext, _ *dynamicpb.Message) {
 			}
 		}
 
-		whoElseIsHereResult.UserInfo = append(
-			whoElseIsHereResult.UserInfo, userInfo)
+		whoElseIsHereResult.UserInfo = append( // List<UserInfo> userInfoList; userInfoList.add(userInfo);
+			whoElseIsHereResult.UserInfo,
+			userInfo,
+		)
 	}
 
 	ctx.Write(whoElseIsHereResult)

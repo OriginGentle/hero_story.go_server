@@ -52,7 +52,7 @@ message WhoElseIsHereCmd {
 }
 
 // 结果
-message WhoElseIsHereResult {
+message WhoElseIsHereResult { // WhoElseIsHereResult_UserInfo
     // 用户信息数组
     repeated UserInfo userInfo = 1;
 

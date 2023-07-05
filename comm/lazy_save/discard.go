@@ -7,7 +7,7 @@ func Discard(lso LazySaveObj) {
 		return
 	}
 
-	log.Info("放弃延时保存，lsoId = %s", lso.GetLsoId())
+	log.Info("放弃延迟保存, lsoId = %+v", lso.GetLsoId())
 
 	lsoMap.Delete(lso.GetLsoId())
 }

@@ -12,23 +12,23 @@ type User struct {
 	LastLoginTime int64  `db:"last_login_time"`
 	MoveState     *MoveState
 
-	componentMap *sync.Map
+	componentMap *sync.Map // ConcurrentHashMap
 	tempLocker   sync.Mutex
 }
 
-func (user *User) GetComponentMap() *sync.Map {
-	if nil != user.componentMap {
-		return user.componentMap
+func (u *User) GetComponentMap() *sync.Map {
+	if nil != u.componentMap {
+		return u.componentMap
 	}
 
-	user.tempLocker.Lock()
-	defer user.tempLocker.Unlock()
+	u.tempLocker.Lock()
+	defer u.tempLocker.Unlock()
 
-	if nil != user.componentMap {
-		return user.componentMap
+	if nil != u.componentMap {
+		return u.componentMap
 	}
 
-	user.componentMap = &sync.Map{}
+	u.componentMap = &sync.Map{}
 
-	return user.componentMap
+	return u.componentMap
 }

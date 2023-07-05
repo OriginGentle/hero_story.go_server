@@ -1,7 +1,7 @@
 package msg
 
 import (
-	"github.com/pkg/errors"
+	"errors"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"strings"
 	"sync"
@@ -40,17 +40,20 @@ func getMsgCodeByMsgName(msgName string) (int16, error) {
 	return msgNameAndMsgCodeMap[msgName], nil
 }
 
+// 初始化两个字典
 func init2Map() {
 	locker.Lock()
 	defer locker.Unlock()
 
-	if len(msgNameAndMsgCodeMap) > 0 &&
-		len(msgCodeAndMsgDescMap) > 0 {
+	if len(msgCodeAndMsgDescMap) > 0 &&
+		len(msgNameAndMsgCodeMap) > 0 {
 		return
 	}
 
 	// 先往 msgNameAndMsgCodeMap "名称 --> 代号" 这个字典里填数据
+
 	for k, v := range MsgCode_value {
+		// USER_LOGIN_CMD ==> userlogincmd
 		msgName := strings.ToLower(
 			strings.Replace(k, "_", "", -1),
 		)

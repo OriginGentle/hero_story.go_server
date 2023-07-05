@@ -6,8 +6,7 @@ import (
 	"sync"
 )
 
-// key: ServerJobType
-// value: Map<ServerId,BizServerInstance>
+// key = ServerJobType, val = Map<ServerId, BizServerInstance>
 var bizServerInstanceMap = &sync.Map{}
 
 type BizServerInstance struct {
@@ -16,29 +15,36 @@ type BizServerInstance struct {
 }
 
 func addBizServerInstance(bizServerInstance *BizServerInstance) {
-	if nil == bizServerInstance || nil == bizServerInstance.SjtArray ||
+	if nil == bizServerInstance ||
+		nil == bizServerInstance.SjtArray ||
 		len(bizServerInstance.SjtArray) <= 0 {
 		return
 	}
 
 	for _, sjt := range bizServerInstance.SjtArray {
-		innerMap, ok := connectedBizServerMap.Load(sjt)
+		innerMap, ok := bizServerInstanceMap.Load(sjt)
+
 		if !ok {
 			innerMap = &sync.Map{}
 			bizServerInstanceMap.LoadOrStore(sjt, innerMap)
 		}
 
 		innerMap, ok = bizServerInstanceMap.Load(sjt)
+
 		if !ok {
 			panic("内置字典为空")
 		}
 
-		innerMap.(*sync.Map).Store(bizServerInstance.ServerId, bizServerInstance)
+		innerMap.(*sync.Map).Store(
+			bizServerInstance.ServerId,
+			bizServerInstance,
+		)
 	}
 }
 
 func deleteBizServerInstance(bizServerInstance *BizServerInstance) {
-	if nil == bizServerInstance || nil == bizServerInstance.SjtArray ||
+	if nil == bizServerInstance ||
+		nil == bizServerInstance.SjtArray ||
 		len(bizServerInstance.SjtArray) <= 0 {
 		return
 	}
@@ -49,6 +55,7 @@ func deleteBizServerInstance(bizServerInstance *BizServerInstance) {
 		if !ok {
 			continue
 		}
+
 		innerMap.(*sync.Map).Delete(bizServerInstance.ServerId)
 	}
 }

@@ -6,9 +6,9 @@ import (
 )
 
 // CmdHandlerFunc 自定义的消息处理函数
-type CmdHandlerFunc func(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message)
+type CmdHandlerFunc func(ctx base.MyCmdContext, pbMsgObj *dynamicpb.Message)
 
-// 消息处理器字典	key = msgCode val = CmdHandlerFunc
+// 指令处理器字典, key = msgCode, val = CmdHandlerFunc
 var cmdHandlerMap = make(map[uint16]CmdHandlerFunc)
 
 // CreateCmdHandler 根据消息代号创建指令处理器

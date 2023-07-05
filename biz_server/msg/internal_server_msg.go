@@ -9,7 +9,7 @@ type InternalServerMsg struct {
 	GatewayServerId int32
 	SessionId       int32
 	UserId          int64
-	Disconnect      int8   // 1 = 断开连接，0 = 不断开（默认值）
+	Disconnect      int8   // 1 = 断开连接, 0 = 不断开 ( 默认值 )
 	MsgData         []byte // 原始消息
 }
 
@@ -26,7 +26,8 @@ func (msg *InternalServerMsg) ToByteArray() []byte {
 }
 
 func (msg *InternalServerMsg) FromByteArray(byteArray []byte) {
-	if nil == byteArray || len(byteArray) <= 0 {
+	if nil == byteArray ||
+		len(byteArray) <= 0 {
 		return
 	}
 

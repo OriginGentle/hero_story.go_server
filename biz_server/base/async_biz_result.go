@@ -7,15 +7,16 @@ import (
 
 type AsyncBizResult struct {
 	// 已返回对象
-	returnedObj interface{}
+	returnedObj interface{} // Object
 	// 完成回调函数
 	completeFunc func()
+
 	// 是否已有返回值
 	hasReturnedObj int32
 	// 是否已有回调函数
 	hasCompleteFunc int32
 	// 是否已经调用过完成函数
-	completeFuncHasAlreadyBeenCalled int32 // 默认值:0,没有被调用过
+	completeFuncHasAlreadyBeenCalled int32 // 默认值 = 0, 没被调用过
 }
 
 // GetReturnedObj 获取返回值
@@ -42,16 +43,16 @@ func (bizResult *AsyncBizResult) OnComplete(val func()) {
 	}
 }
 
-// 执行完成回调函数
+// 执行完成回调
 func (bizResult *AsyncBizResult) doComplete() {
 	if nil == bizResult.completeFunc {
 		return
 	}
 
-	// 通过CAS原语比较标记值
-	// 设置成功执行完成调用函数
+	// 通过 CAS 原语来比较标记值,
+	// 正确之后才进行调用
 	if atomic.CompareAndSwapInt32(&bizResult.completeFuncHasAlreadyBeenCalled, 0, 1) {
-		// 回到主线程去执行
+		// 扔到主线程里去执行
 		main_thread.Process(bizResult.completeFunc)
 	}
 }

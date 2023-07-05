@@ -15,8 +15,8 @@ var mainQ = make(chan func(), mainQSize)
 var started = false
 var startLocker = &sync.Mutex{}
 
-// Process 处理任务
-// 只将任务添加到队列，而不是马上执行
+// Process 处理任务,
+// 只将任务添加到队列而不是马上执行...
 func Process(task func()) {
 	if nil == task {
 		return
@@ -35,7 +35,7 @@ func Process(task func()) {
 	}
 }
 
-// 执行task
+// 执行 task
 func execute() {
 	for {
 		task := <-mainQ
@@ -46,10 +46,11 @@ func execute() {
 
 		func() {
 			defer func() {
-				if err := recover(); nil != err {
-					log.Error("发生异常，%+v", err)
+				if err := recover(); nil != err { // try ... catch ...
+					log.Error("发生异常, %+v", err)
 				}
 			}()
+
 			task()
 		}()
 	}

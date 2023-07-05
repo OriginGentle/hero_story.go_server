@@ -20,6 +20,7 @@ type dailyFileWriter struct {
 	fileSwitchLock *sync.Mutex
 }
 
+// Write 输出日志
 func (w *dailyFileWriter) Write(byteArray []byte) (n int, err error) {
 	if nil == byteArray ||
 		len(byteArray) <= 0 {
@@ -27,6 +28,7 @@ func (w *dailyFileWriter) Write(byteArray []byte) (n int, err error) {
 	}
 
 	outputFile, err := w.getOutputFile()
+
 	if nil != err {
 		return 0, err
 	}
@@ -37,35 +39,40 @@ func (w *dailyFileWriter) Write(byteArray []byte) (n int, err error) {
 	return len(byteArray), nil
 }
 
+// 获取输出文件
+// 每天创建一个新得日志文件
 func (w *dailyFileWriter) getOutputFile() (io.Writer, error) {
 	yearDay := time.Now().YearDay()
 
-	if w.lastYearDay == yearDay && nil != w.outputFile {
+	if w.lastYearDay == yearDay &&
+		nil != w.outputFile {
 		return w.outputFile, nil
 	}
 
 	w.fileSwitchLock.Lock()
 	defer w.fileSwitchLock.Unlock()
 
-	if w.lastYearDay == yearDay && nil != w.outputFile {
+	if w.lastYearDay == yearDay &&
+		nil != w.outputFile {
 		return w.outputFile, nil
 	}
 
 	w.lastYearDay = yearDay
 
-	// 建立日志目录
+	// 先建立日志目录
 	err := os.MkdirAll(path.Dir(w.fileName), os.ModePerm)
 
 	if nil != err {
 		return nil, err
 	}
 
+	// 定义日志文件名称 = 日志文件名 . 日期后缀
 	newDailyFile := w.fileName + "." + time.Now().Format("20060102")
 
 	outputFile, err := os.OpenFile(
 		newDailyFile,
 		os.O_CREATE|os.O_APPEND|os.O_WRONLY,
-		0644,
+		0644, // rw-r--r--
 	)
 
 	if nil != err ||

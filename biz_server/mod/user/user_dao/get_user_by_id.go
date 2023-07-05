@@ -6,15 +6,15 @@ import (
 	"hero_story.go_server/comm/log"
 )
 
-const sqlGetUserByName = `select user_id, user_name, password, hero_avatar, curr_hp from t_user where user_name = ?`
+const sqlGetUserById = `select user_id, user_name, password, hero_avatar, curr_hp from t_user where user_id = ?`
 
-// GetUserByName 根据用户名获得用户数据
-func GetUserByName(userName string) *user_data.User {
-	if len(userName) <= 0 {
+// GetUserById 根据用户 Id 获得用户数据
+func GetUserById(userId int64) *user_data.User {
+	if userId <= 0 {
 		return nil
 	}
 
-	row := base.MysqlDB.QueryRow(sqlGetUserByName, userName)
+	row := base.MysqlDB.QueryRow(sqlGetUserById, userId)
 
 	if nil == row {
 		return nil

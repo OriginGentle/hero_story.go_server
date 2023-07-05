@@ -1,8 +1,6 @@
 package user_lock
 
-import (
-	"sync"
-)
+import "sync"
 
 var lockMap = &sync.Map{}
 

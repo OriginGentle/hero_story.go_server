@@ -4,7 +4,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/dynamicpb"
 	"hero_story.go_server/biz_server/base"
-	user_data2 "hero_story.go_server/biz_server/mod/user/user_data"
+	"hero_story.go_server/biz_server/mod/user/user_data"
 	"hero_story.go_server/biz_server/msg"
 	"hero_story.go_server/biz_server/network/broadcaster"
 	"time"
@@ -15,13 +15,15 @@ func init() {
 }
 
 // 用户移动到指令处理器
-func handleUserMoveToCmd(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
-	if nil == ctx || ctx.GetUserId() <= 0 || nil == pbMsgObj {
+func handleUserMoveToCmd(ctx base.MyCmdContext, pbMsgObj *dynamicpb.Message) {
+	if nil == ctx ||
+		ctx.GetUserId() <= 0 ||
+		nil == pbMsgObj {
 		return
 	}
 
 	// 获取用户数据
-	user := user_data2.GetUserGroup().GetByUserId(ctx.GetUserId())
+	user := user_data.GetUserGroup().GetByUserId(ctx.GetUserId())
 
 	if nil == user {
 		return
@@ -35,7 +37,7 @@ func handleUserMoveToCmd(ctx base.ICmdContext, pbMsgObj *dynamicpb.Message) {
 	})
 
 	if nil == user.MoveState {
-		user.MoveState = &user_data2.MoveState{}
+		user.MoveState = &user_data.MoveState{}
 	}
 
 	nowTime := time.Now().UnixMilli()

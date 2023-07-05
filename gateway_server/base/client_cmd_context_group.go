@@ -1,9 +1,12 @@
 package base
 
-import "sync"
+import (
+	"sync"
+)
 
+// ClientCmdContextGroup 客户端指令上下文分组
 type ClientCmdContextGroup struct {
-	innerMap *sync.Map
+	innerMap *sync.Map // ConcurrentHashMap<int, CmdContextImpl>
 }
 
 var cmdContextImplGroupInstance = &ClientCmdContextGroup{
@@ -46,4 +49,24 @@ func (group *ClientCmdContextGroup) GetBySessionId(sessionId int32) ClientCmdCon
 	}
 
 	return cmdCtx.(ClientCmdContext)
+}
+
+func (group *ClientCmdContextGroup) GetByUserId(userId int64) ClientCmdContext {
+	if userId <= 0 {
+		return nil
+	}
+
+	var findCmdCtx ClientCmdContext
+
+	group.innerMap.Range(func(_, val interface{}) bool {
+		if val.(ClientCmdContext).GetUserId() == userId {
+			findCmdCtx = val.(ClientCmdContext)
+			return false
+		}
+
+		return true
+	})
+
+	return findCmdCtx
+	// 改完之后别忘了回去修改 gateway_server.go 代码；
 }

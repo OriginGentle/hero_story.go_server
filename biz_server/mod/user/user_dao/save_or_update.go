@@ -7,11 +7,12 @@ import (
 )
 
 const sqlSaveOrUpdate = `
-insert into t_user(
-	user_name,password,hero_avatar,curr_hp,create_time,last_login_time
+insert into t_user ( 
+	user_name, password, hero_avatar, curr_hp, create_time, last_login_time
 ) value (
-	?,?,?,?,?,?
-) on duplicate key update curr_hp = values(curr_hp),last_login_time = values(last_login_time)
+	?, ?, ?, ?, ?, ?
+)
+on duplicate key update curr_hp = values(curr_hp), last_login_time = values(Last_login_time)
 `
 
 // SaveOrUpdate 保存或者更新用户数据

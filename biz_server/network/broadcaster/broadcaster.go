@@ -9,22 +9,22 @@ import (
 var innerMap = &sync.Map{}
 
 // AddCmdCtx 添加指令上下文分组
-func AddCmdCtx(sessionId string, cmdCtx base.ICmdContext) {
-	if len(sessionId) <= 0 ||
+func AddCmdCtx(sessionUId string, cmdCtx base.MyCmdContext) {
+	if len(sessionUId) <= 0 ||
 		nil == cmdCtx {
 		return
 	}
 
-	innerMap.Store(sessionId, cmdCtx)
+	innerMap.Store(sessionUId, cmdCtx)
 }
 
 // RemoveCmdCtxBySessionId 移除指令上下文分组
-func RemoveCmdCtxBySessionId(sessionId string) {
-	if len(sessionId) <= 0 {
+func RemoveCmdCtxBySessionId(sessionUId string) {
+	if len(sessionUId) <= 0 {
 		return
 	}
 
-	innerMap.Delete(sessionId)
+	innerMap.Delete(sessionUId)
 }
 
 // Broadcast 广播消息
@@ -39,7 +39,7 @@ func Broadcast(msgObj protoreflect.ProtoMessage) {
 			return true
 		}
 
-		val.(base.ICmdContext).Write(msgObj)
+		val.(base.MyCmdContext).Write(msgObj)
 		return true
 	})
 }
